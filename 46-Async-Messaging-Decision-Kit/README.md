@@ -6,7 +6,7 @@ Score your workload's fan-out, ordering, replay, and throughput needs against al
 
 Every async architecture starts with a 30-second decision that takes six weeks to reverse. Teams default to whatever they used last, and the bill for guessing wrong is concrete:
 
-- **EventBridge as a work queue**: at 1,000 msg/sec (2.59B events/month), EventBridge custom events cost **$2,592/month** at $1.00 per million. Batched SQS Standard handles the same volume for **~$311/month**, and two provisioned Kinesis shards do it for **~$58/month**. That is an 8–45x premium for content routing a single-consumer queue never uses.
+- **EventBridge as a work queue**: at 1,000 msg/sec (2.59B events/month), EventBridge custom events cost **$2,592/month** at $1.00 per million. Batched SQS Standard (10 msgs/request) handles the same volume for **~$104/month**, and two provisioned Kinesis shards do it for **~$58/month**. That is a 25–45x premium for content routing a single-consumer queue never uses.
 - **SQS Standard where ordering matters**: best-effort ordering means out-of-order delivery shows up only under production load—usually as a corrupted state machine three weeks after launch.
 - **EventBridge where replay matters**: archives only capture events created *after* the archive exists. Discover this post-incident and the history you needed is permanently gone. (Kinesis retains 24 hours by default, extendable to 365 days.)
 - **Kinesis for 5 msg/sec**: one provisioned shard costs $10.95/month at zero traffic and forces every consumer to manage checkpointing—2–4 engineer-weeks of code a $3/month SQS queue never needs.
@@ -138,13 +138,13 @@ its trump card.
 GATE 2 — THROUGHPUT: 50 msg/sec @ 1 KB = 0.05 MB/s. Two orders of magnitude under
 one shard's 1 MB/s ceiling. Shard-based scaling buys nothing.
 GATE 3 — FAN-OUT: 1 consumer today, no content filtering. ELIMINATED: EventBridge
-($1.00/M ingest = $129.60/mo here vs $19.44 for FIFO SQS — a 6.7x premium for
+($1.00/M ingest = $129.60/mo here vs $6.48 for FIFO SQS — a 20x premium for
 routing you don't use) and SNS (nothing to fan out to).
 GATE 4 — ORDERING: PER_ENTITY on order_id, well under 300 msg/sec per group.
 RECOMMENDATION: SQS FIFO, MessageGroupId = order_id. Confidence: HIGH.
-Cost at your volume: $19.44/mo (38.88M batched requests x $0.50/M).
-Crossover note: one Kinesis shard undercuts batched SQS above ~40 msg/sec
-sustained — revisit at 10x growth, where replay needs usually appear too.
+Cost at your volume: $6.48/mo (12.96M batched requests x $0.50/M).
+Crossover note: one Kinesis shard ($10.95/mo idle) undercuts batched SQS FIFO
+above ~120 msg/sec sustained — revisit at 10x growth, where replay needs appear too.
 Regret hedge: keep publishes behind one module; a later swap to Kinesis is a
 2–3 week producer-edge change, not a consumer rewrite.
 ```
@@ -168,9 +168,9 @@ Verified against public AWS pricing (us-east-1, June 2026):
 - **SQS**: $0.40 per million requests (Standard), $0.50/M (FIFO); first 1M/month free; each 64 KB chunk bills as one request; max message now 1 MiB.
 - **SNS**: $0.50 per million publishes; delivery to SQS and Lambda is free.
 - **EventBridge**: $1.00 per million custom events (64 KB chunks); archive processing $0.10/GB, archive storage $0.023/GB-month; replays bill again at custom-event rates. AWS service events on the default bus are free.
-- **Kinesis Data Streams**: provisioned $0.015/shard-hour ($10.95/month) + $0.014 per million 25 KB PUT payload units; on-demand $0.04/stream-hour + $0.08/GB in + $0.04/GB out; enhanced fan-out $0.015/consumer-shard-hour + $0.013/GB retrieved; extended retention to 7 days $0.02/shard-hour.
+- **Kinesis Data Streams**: provisioned $0.015/shard-hour ($10.95/month) + $0.014 per million 25 KB PUT payload units; on-demand bills per stream-hour plus per-GB data-in/out (no shard management); confirm current on-demand rates on the pricing page before quoting. Enhanced fan-out adds a per-consumer-shard-hour charge plus per-GB retrieved.
 
-Worked example at 50 msg/sec, 1 KB (129.6M msgs/month): SQS Standard batched **$15.55**, SQS unbatched **$155.52**, EventBridge **$129.60**, one Kinesis shard **$12.76**, Kinesis on-demand **~$44.75**. Crossover: one provisioned shard undercuts batched SQS above **~40 msg/sec sustained** (and unbatched SQS above ~4 msg/sec)—but at 0 msg/sec the queue costs $0 while the shard still costs $10.95/month. Spiky, low-volume traffic favors request-billed services; sustained volume favors shards.
+Worked example at 50 msg/sec, 1 KB (129.6M msgs/month): SQS Standard batched **$5.18** (12.96M requests x $0.40/M), SQS unbatched **$51.84**, SQS FIFO batched **$6.48** ($0.50/M), EventBridge **$129.60**, one provisioned Kinesis shard **$12.76** ($10.95 shard + $1.81 PUT). Crossover: one provisioned shard undercuts batched SQS Standard above **~160 msg/sec sustained** (batched FIFO above ~120 msg/sec, unbatched SQS above ~11 msg/sec)—but at 0 msg/sec the queue costs $0 while the shard still costs $10.95/month. Spiky, low-volume traffic favors request-billed services; sustained volume favors shards.
 
 ## Troubleshooting
 

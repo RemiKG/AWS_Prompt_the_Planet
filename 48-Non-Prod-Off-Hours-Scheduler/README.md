@@ -1,6 +1,6 @@
 # Nights and Weekends Off: EventBridge Scheduler + Lambda Auto-Stop for Non-Prod EC2, RDS, and ECS
 
-Deploys a tag-driven EventBridge Scheduler + Lambda kit that powers non-prod EC2, RDS, and ECS down for the 118 idle hours in every 168-hour week—so your dev fleet bills like a part-time employee instead of a 24/7 one.
+Deploys a tag-driven EventBridge Scheduler + Lambda kit that powers non-prod EC2, RDS, and ECS down for the 108 idle hours in every 168-hour week—so your dev fleet bills like a part-time employee instead of a 24/7 one.
 
 ## The Problem
 
@@ -118,16 +118,16 @@ Amazon EventBridge Scheduler, AWS Lambda, Amazon EC2, Amazon RDS (including Auro
 
 ## Well-Architected Alignment
 
-- **Cost Optimization** — the entire point: reclaims the ~70% of weekly hours non-prod sits idle; emits estimated savings per run so the win is measurable
+- **Cost Optimization** — the entire point: reclaims the ~64% of weekly hours non-prod sits idle; emits estimated savings per run so the win is measurable
 - **Operational Excellence** — dry-run-first rollout, structured JSON logs, SNS run summaries, a written rollback procedure, idempotent re-runs
 - **Security** — least-privilege IAM with tag-scoped conditions on every mutating action; production protected by an explicit Deny that no code bug can bypass
 - **Reliability** — per-resource error isolation, ASG/replica/instance-store skip rules, RDS 7-day auto-restart handled by event rule + nightly sweep
-- **Sustainability** — 118 fewer compute-hours per resource per week is the most direct carbon reduction available in non-prod
+- **Sustainability** — 108 fewer compute-hours per resource per week is the most direct carbon reduction available in non-prod
 
 ## Cost Notes
 
 - **Kit running cost:** ~44 schedule invocations/month at $1.00 per million EventBridge Scheduler invocations ≈ $0.00; Lambda ~44 × 30 s × 256 MB sits inside the free tier; CloudWatch Logs ingest well under $0.10/month; SNS email notifications free for the first 1,000/month. **Effectively $0.**
-- **Savings (reference fleet, us-east-1):** 12 × m5.large ($0.096/h) + 3 × db.m5.large PostgreSQL ($0.192/h) + 8 Fargate tasks (≈$0.0494/h) ≈ $1,550/month at 24/7. At 70% off-hours → **≈$1,085/month back, ≈$13,000/year**.
+- **Savings (reference fleet, us-east-1):** 12 × m5.large ($0.096/h) + 3 × db.m5.large PostgreSQL ($0.192/h) + 8 Fargate tasks (≈$0.0494/h) ≈ $1,550/month at 24/7. At ~64% off-hours (108 of 168 weekly hours) → **≈$1,000/month back, ≈$12,000/year**.
 - **What keeps billing:** stopped ≠ free. EBS volumes (gp3 $0.08/GB-month) and RDS storage + automated backups bill while stopped—12 × 100 GB gp3 is still $96/month. The README states this so finance isn't surprised.
 
 ## Troubleshooting

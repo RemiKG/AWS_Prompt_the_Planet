@@ -55,7 +55,7 @@ Build a production-ready fine-tuning pipeline for an open-weight LLM (default [M
 ### 3. Instance Sizing (use this table; justify any deviation)
 - 7B QLoRA 4-bit (batch 4, grad-accum 4): ml.g5.2xlarge, 1x A10G 24 GB — $1.515/hr On-Demand, us-east-1
 - 7B LoRA bf16 or 13B QLoRA: ml.g5.12xlarge, 4x A10G — ~$7.09/hr
-- 13B LoRA bf16 or any full fine-tune: ml.p4d.24xlarge, 8x A100 40 GB — ~$37.69/hr list (AWS cut P4 prices in 2025; verify current)
+- 13B LoRA bf16 or any full fine-tune: ml.p4d.24xlarge, 8x A100 40 GB — historically ~$37.69/hr On-Demand, but AWS cut P4/P5 prices by up to 45% in June 2025, so you MUST fetch the live rate before budgeting
 - Always enable gradient_checkpointing and bf16 compute; default to QLoRA unless I say otherwise.
 
 ### 4. Evaluation Gate — Hard Stop Before Deploy
@@ -124,7 +124,7 @@ Amazon SageMaker (Training Jobs with managed Spot, Processing Jobs, Model Regist
 
 - 7B QLoRA (10k examples, 3 epochs, ~8 GPU-hours) on ml.g5.2xlarge: $12.12 On-Demand → roughly $3.60-$4.85 at typical 60-70% Spot savings.
 - 13B QLoRA (~10 hours) on ml.g5.12xlarge: $70.90 On-Demand → roughly $21-$28 on Spot.
-- Full fine-tunes on ml.p4d.24xlarge list at ~$37.69/hr in us-east-1; AWS cut P4 prices in 2025, so confirm the current rate before budgeting.
+- Full fine-tunes on ml.p4d.24xlarge historically listed at ~$37.69/hr On-Demand in us-east-1; AWS cut P4/P5 prices by up to 45% in June 2025, so confirm the current rate before budgeting.
 - Eval Processing job: ~1 hour on ml.g5.2xlarge ≈ $1.52—run it On-Demand; it is short and it gates the release.
 - Checkpoints: two retained checkpoints ≈ 4 GB for a 7B QLoRA run ≈ $0.09/month at S3 Standard ($0.023/GB-month).
 - Basis for the discount claim: AWS's managed Spot training documentation states savings of up to 90% versus On-Demand; SageMaker reports each job's actual figure as (1 − BillableTimeInSeconds / TrainingTimeInSeconds) × 100.
