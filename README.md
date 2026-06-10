@@ -1,66 +1,122 @@
-# AWS Prompt the Planet — Production-Ready AWS Prompt Library
+# AWS Prompt the Planet submissions
 
-60 production-ready prompts for building, debugging, and cost-optimizing on AWS, submitted to the AWS **Prompt the Planet** challenge (DoraHacks, June 2026). Each folder is one self-contained prompt package: the problem, how to use it, the full copy-paste System Prompt, expected outputs, Well-Architected alignment, cost notes, and troubleshooting.
+30 entries for the AWS Prompt the Planet challenge (DoraHacks, June 2026). One
+folder per entry, content as submitted. Each is a system prompt for an agentic
+assistant with AWS access: Kiro CLI, Claude Code, Amazon Q Developer CLI,
+anything that can run the AWS CLI.
 
-| # | Prompt | One-liner |
-|---|---|---|
-| 01 | [IAM AccessDenied Debugger: CloudTrail Root-Cause to Least-Privilege Fix in Under 5 Minutes](01-IAM-Access-Denied-Debugger/) | Diagnose any AWS AccessDenied to its true cause across all 5 policy families in under 5 minutes—then ship the minimal least-privilege fix, so teams stop over-granting admin to unblock deploys. |
-| 02 | [Production Aurora PostgreSQL: Right-Sized Instances, RDS Proxy Pooling, and a Restore Actually Executed](02-Aurora-Postgres-Production-Kit/) | Stop guessing your DB instance class and praying your backups work—ship a right-sized, connection-pooled Aurora Postgres with a restore proven on a scratch instance. |
-| 03 | [DynamoDB Single-Table Design from an Access-Pattern Worksheet: Stop Hot Partitions and Full-Table Scans Before They Ship](03-DynamoDB-Single-Table-Design/) | Model DynamoDB from your access patterns, not your entities—so every query is a single-key lookup and you never bolt on a GSI to rescue a scan in production. |
-| 04 | [NAT-Gateway Zero: Endpoint-First VPC Egress Cost Killer](04-NAT-Gateway-Egress-Cost/) | Attribute NAT Gateway spend to the exact AWS service that caused it, then kill it with VPC endpoints—the top bill-shock line drops from $0.045/GB to $0.01/GB or free. |
-| 05 | [Keyless GitHub Actions to AWS: OIDC Trust Roles That Kill Long-Lived Access Keys](05-Keyless-CICD-OIDC-Deploy/) | Delete every static AWS key from CI — short-lived OIDC tokens scoped to one repo and branch, with a plan-gate before apply, so a leaked secret means nothing. |
-| 06 | [CloudFormation Stuck-Stack Rescue Runbook: UPDATE_ROLLBACK_FAILED, DELETE_FAILED, Drift & Orphan Re-Import](06-CloudFormation-Stuck-Stack-Rescue/) | Turn a wedged CloudFormation stack into a green, drift-free, fully-managed one—so you stop deleting production by hand and ship again in minutes, not days. |
-| 07 | [Terraform State Surgery: Zero-Destroy Import, Move, Split, and Drift Remediation for S3-Backed State](07-Terraform-State-Surgery/) | Import, move, split, and de-drift Terraform state on S3 with dry-run proof at every step—so a refactor never accidentally destroys your production RDS instance. |
-| 08 | [Lambda Cold-Start & Cost Tuning Kit: Power Tuning, SnapStart & Provisioned-Concurrency Break-Even (Measured, Not Guessed)](08-Lambda-Cold-Start-Tuning-Kit/) | Stop guessing Lambda memory and cold-start fixes—ship the Power Tuning state machine, a SnapStart eligibility table, and break-even math that cut p99 latency and the bill. |
-| 09 | [VPC Connectivity Debugger: "A Can't Reach B" Root-Caused in Under 5 Minutes with Reachability Analyzer](09-VPC-Connectivity-Debugger/) | Layered elimination plus Reachability Analyzer path evidence pinpoints the exact blocking hop—so you stop guessing at security groups and ship the fix instead of opening a support case. |
-| 10 | [S3 Storage-Class & Lifecycle Optimizer: Inventory-Driven Tiering That Avoids Retrieval-Fee Traps](10-S3-Lifecycle-Optimizer/) | Turn S3 Inventory into a class-by-class break-even decision—so cold data moves to the cheapest tier that won't blow up your bill on the first restore. |
-| 11 | [Savings Plans & RI Commitment Analyzer: Stop Over-Committing on AWS Compute](11-Savings-Plans-RI-Analyzer/) | Turn Cost Explorer, CUR, and Compute Optimizer into a laddered no-regrets commitment plan—so you capture 40-60% compute savings without stranding a single dollar on idle reservations. |
-| 12 | [Graviton (Arm64) Migration Runbook for ECS, EKS, Lambda & RDS — Cut 20% Without a Broken Multi-Arch Build](12-Graviton-Migration-Runbook/) | A per-runtime Graviton migration runbook that ships multi-arch images and safe rollbacks—so you bank up to 20% price-performance instead of paying x86 tax. |
-| 13 | [Ephemeral Per-PR Preview Environments with TTL Auto-Destroy: Stop Orphaned AWS Stacks from Draining the Bill](13-Ephemeral-PR-Preview-Environments/) | Spin a full-stack preview per pull request and guarantee its teardown—so reviewers click a live URL instead of your team paying for stacks nobody remembers to delete. |
-| 14 | [Route 53 + ACM Done Right: End the DNS-Validation, Wrong-Region Certificate, and Failover Nightmare](14-Route53-ACM-DNS-Kit/) | Generate production-ready Route 53 + ACM Terraform that validates certs, fixes the CloudFront us-east-1 trap, and fails over on health checks—so HTTPS ships, not stalls. |
-| 15 | [CloudFront Production CDN Kit: OAC-Locked S3 Delivery with Origin Failover and Signed URLs](15-CloudFront-Production-CDN-Kit/) | Stand up a hardened CloudFront edge with OAC, signed URLs, and origin failover in one prompt—so a public S3 bucket leak never becomes the headline that ends your seed round. |
-| 16 | [IAM Users to Identity Center: Zero-Lockout Workforce SSO Migration with Permission-Set Parity and a Break-Glass Escape Hatch](16-IAM-Identity-Center-SSO-Migration/) | Retire long-lived IAM users for SCIM-fed SSO with permission-set parity and a break-glass account kept outside SSO—so a bad cutover never locks you out of your own AWS Organization. |
-| 17 | [Cognito Production Auth From Scratch: Hosted UI Custom Domain, OAuth, and MFA Without Broken Redirect Flows](17-Cognito-Production-Auth-Setup/) | Ship a production Cognito user pool with custom-domain hosted UI, OAuth federation, and MFA—so you stop debugging redirect_mismatch errors and start shipping authenticated features. |
-| 18 | [Process a Million Files Serverless: Step Functions Distributed Map with Failure Tolerance](18-Step-Functions-Distributed-Map/) | Fan out 1M S3 objects across 10,000 parallel Lambdas with batching and per-run failure thresholds—so one poison-pill file never sinks the whole job. |
-| 19 | [AWS Batch on EC2 Spot with Checkpoint-Resume: Survive the 2-Minute Interruption Notice Without Losing Work](19-AWS-Batch-Spot-Checkpoint/) | Run AWS Batch jobs on EC2 Spot and never lose work to a reclaim—wire the 2-minute interruption handler, checkpoint to S3, auto-resume, and cut compute up to 70%. |
-| 20 | [Real-Time Clickstream Pipeline: Kinesis to Firehose to S3 Iceberg to Athena (No Lost Events, No Idle Spend)](20-Kinesis-Iceberg-Athena-Clickstream/) | Stream clickstream events into queryable Iceberg tables with honest exactly-once-ish guarantees—so you analyze user behavior in Athena instead of babysitting Kafka. |
-| 21 | [Serverless Lakehouse Starter: Glue + Athena + Iceberg with Per-Query Byte Guardrails](21-Glue-Athena-Iceberg-Lakehouse/) | Stand up a Glue + Athena + Iceberg lakehouse with partitioning, compaction, and per-query byte caps—so a runaway scan never turns into a $700 surprise bill. |
-| 22 | [SageMaker Inference Cost Optimizer: Serverless vs Real-Time vs MME Decision Kit](22-SageMaker-Inference-Cost-Optimization/) | Stop paying for idle ml.g5 endpoints 24/7 — get a serverless vs real-time vs MME decision table with price math and scale-to-zero so inference cost tracks actual traffic. |
-| 23 | [Serverless Document-Extraction Pipeline: Textract + Bedrock Structured Output with A2I Confidence Routing](23-Serverless-Document-Extraction-Pipeline/) | Turn PDFs into schema-valid JSON with Textract, Bedrock, and A2I human review—so low-confidence fields route to people, not silently corrupt your database. |
-| 24 | [Bedrock Batch Inference at Half Price: JSONL Job Builder for Embeddings & Bulk Generation at Scale](24-Bedrock-Batch-Inference-Half-Price/) | Turn idle, non-urgent LLM workloads into JSONL batch jobs that bill at 50% of on-demand—so you embed a million documents for the price of half a million. |
-| 25 | [Zero-Drama Amazon EKS Upgrades: Skew-Safe Control Plane and Managed Node Group Runbook](25-Zero-Drama-EKS-Upgrades/) | Generate a step-by-step EKS minor-version upgrade runbook with skew checks, PDB audits, and surge settings—so you upgrade clusters at noon, not at 2 AM. |
-| 26 | [Heroku to AWS Cutover Kit: Procfile/Config-Var Translation, DMS-Validated Database Move, and a Weighted Route 53 Cutover You Can Roll Back in 60 Seconds](26-Heroku-to-AWS-Cutover-Kit/) | Leave Heroku without a Sunday-night big-bang—translate Procfile and config vars, migrate the DB with DMS row validation, then shift DNS 10 to 100 percent with instant rollback. |
-| 27 | [Production ElastiCache for Valkey: Cluster-Mode Decision, a Real Failover Drill, and Stampede-Proof Caching](27-ElastiCache-Redis-Production-Kit/) | Stop praying your Redis survives an AZ loss and your cache doesn't melt under a thundering herd—ship a Multi-AZ ElastiCache cluster whose failover you actually triggered. |
-| 28 | [RDS PostgreSQL 2 AM Performance Triage: Performance Insights + pg_stat_statements Runbook](28-RDS-Postgres-Performance-Triage/) | Turn a paging RDS Postgres incident into a wait-event-to-fix runbook—root cause in under 5 minutes, with safe-now and needs-window remediations split so you stop guessing at 2 AM. |
-| 29 | [Local-First AWS Dev with LocalStack + SAM CLI: Test Lambda, DynamoDB, S3, and SQS at $0 Without "Works Locally, Breaks in AWS"](29-LocalStack-SAM-Local-Dev/) | Run your serverless stack on your laptop and in CI for zero AWS spend — with an honest map of what LocalStack fakes faithfully vs. what only real AWS proves, so green tests mean green deploys. |
-| 30 | [Multi-VPC Topology Decision Kit: Transit Gateway vs Peering vs PrivateLink Cost-Crossover Analyzer](30-Multi-VPC-Topology-Decision-Kit/) | Stop guessing between Transit Gateway, VPC peering, and PrivateLink—get the cost-crossover math and a decision tree so you never overpay $36/mo per attachment for traffic peering moves free. |
-| 31 | [Kill the Public IPv4 Tax: VPC Dual-Stack Migration Kit with Egress-Only IGW](31-IPv6-Dual-Stack-Migration/) | Audits every $3.65/month public IPv4 in your VPC and generates a phased dual-stack migration with egress-only IGW—so you delete the IPv4 line item without breaking a single connection. |
-| 32 | [CUR 2.0 + Athena Cost Warehouse: 10 Production SQL Queries for Per-Team, Per-Feature, and Unit-Economics Answers](32-CUR-Athena-Cost-SQL/) | Turn your AWS bill into a queryable SQL database with CUR 2.0 + Athena and 10 ready-made queries—so per-team, per-feature, and per-customer cost answers take 30 seconds, not a finance ticket. |
-| 33 | [AWS FIS Game-Day Chaos Kit: Five Guardrailed Fault-Injection Experiments with CloudWatch Abort Alarms](33-FIS-Game-Day-Chaos/) | Five guardrailed AWS FIS chaos experiments with blast-radius math, CloudWatch abort alarms, and runbooks—so your first real outage is a rehearsed Tuesday, not a 3 AM scramble. |
-| 34 | [Keyless Cross-Account Access Kit: IAM Roles with sts:ExternalId and AWS RAM Shares That Stop Confused-Deputy Attacks](34-Cross-Account-Roles-Kit/) | Scoped IAM roles, sts:ExternalId trust policies, and AWS RAM shares replace pasted access keys—vendors get exactly the access they need and confused-deputy attacks die at the trust policy. |
-| 35 | [PCI DSS SAQ A-EP Compliance Kit: AWS WAF, VPC Segmentation, CloudTrail, and KMS Mapped to Every Checklist Question](35-PCI-SAQ-A-EP-Kit/) | Turns the ~190-question PCI DSS v4.0.1 SAQ A-EP into a requirement-to-control map plus Terraform for WAF, segmentation, CloudTrail, and KMS—so your payment page passes assessment the first time. |
-| 36 | [Redshift Serverless Cost Guardrails: RPU Caps, Daily Usage Limits, and True Scale-to-Zero](36-Redshift-Serverless-Guardrails/) | Hard RPU caps, daily usage limits that deactivate at breach, and idle compute at $0—your Redshift bill stops at the number you set, not the number you discover at month end. |
-| 37 | [CodeDeploy Canary Releases for Lambda and ECS: Alarm-Gated Traffic Shifting That Caps a Bad Deploy at 10% Blast Radius](37-CodeDeploy-Canary-Releases/) | Ship every Lambda and ECS release to 10% of traffic behind CloudWatch alarm gates with instant CodeDeploy rollback—so a bad deploy burns 300 requests, not your whole user base. |
-| 38 | [HIPAA Launch Kit: BAA-Gated, KMS-Encrypted PHI Architecture That Blocks Non-Eligible AWS Services](38-HIPAA-Eligible-Architecture/) | Gates every AWS service against the live HIPAA-eligible list, then builds encrypted, fully audited PHI infrastructure as Terraform — so your first hospital contract survives security diligence. |
-| 39 | [Bedrock Token Bill Retrofit: Prompt Caching + Intelligent Prompt Routing to Stop Rebilling the Same Tokens](39-Bedrock-Prompt-Caching-Routing/) | Cache checkpoints on the stable prefix and a quality-anchored prompt router—Bedrock input spend drops up to 90% on repeated tokens before you ever touch a budget alarm. |
-| 40 | [Bedrock Knowledge Base Retrieval Tuning Kit: Fix Wrong Answers and Shrink OpenSearch Serverless Bills](40-Bedrock-KB-Ingestion-Tuning/) | Tune an existing Bedrock Knowledge Base with the right chunking, metadata filters, and a scored eval loop—wrong answers drop, the OpenSearch bill shrinks, and you prove both with a number. |
-| 41 | [Pilot-Light Cross-Region DR Kit: Route 53 Failover With S3/RDS/DynamoDB Replication and Game-Day-Measured RTO/RPO](41-Pilot-Light-DR-Kit/) | Pilot-light DR across AWS regions with Route 53 failover and live data replication—survive a regional outage for under 10% of duplicate-stack cost, with RTO and RPO you measured, not guessed. |
-| 42 | [Zero-Downtime RDS Major-Version Upgrades: Blue/Green Switchover Runbook for PostgreSQL and MySQL](42-RDS-Blue-Green-Upgrades/) | Upgrade EOL Postgres/MySQL on RDS with a guard-railed Blue/Green switchover under 60 seconds—escape $292/month Extended Support fees without a maintenance-window outage. |
-| 43 | [ECS Fargate Spot for Web Tiers: Capacity-Provider Cutover and 2-Minute SIGTERM Drain Without Dropped Requests](43-Fargate-Spot-Web-Tier/) | Moves your stateless ECS web tier onto Fargate Spot with an on-demand base, weighted overflow, and a tuned 2-minute SIGTERM drain—up to 70% off compute with zero dropped requests. |
-| 44 | [S3 Quarantine-Then-Promote Upload Pipeline: Presigned Multipart + GuardDuty Malware Protection for Untrusted User Files](44-Secure-Upload-Malware-Pipeline/) | Users upload straight to S3 through short-lived presigned URLs, GuardDuty scans every object in quarantine—clean files auto-promote, malware never reaches the bucket your app serves from. |
-| 45 | [Zero-SSH AWS: Kill the Bastion with SSM Session Manager, Tag-Scoped IAM, and Full Session Audit to S3](45-SSM-Zero-SSH-Access/) | Delete every bastion, public IP, and .pem file—engineers reach EC2 and RDS through audited SSM sessions while port 22 closes for good and access-review evidence writes itself. |
-| 46 | [SQS vs SNS vs EventBridge vs Kinesis: The Async Backbone Decision Kit That Prevents the Month-Three Rewrite](46-Async-Messaging-Decision-Kit/) | Scores fan-out, ordering, replay, and throughput against SQS, SNS, EventBridge, and Kinesis with real crossover math—so you pick the right async backbone once instead of rewriting it in month three. |
-| 47 | [Ephemeral GitHub Actions Runners on EC2 Spot: JIT One-Job Clean Rooms That End the Per-Minute CI Tax](47-GitHub-Runners-on-Spot/) | Auto-scaling ephemeral GitHub Actions runners on EC2 Spot—every job gets a clean instance that registers, runs once, and terminates, cutting CI compute cost 80-90% vs GitHub-hosted runners. |
-| 48 | [Nights and Weekends Off: EventBridge Scheduler + Lambda Auto-Stop for Non-Prod EC2, RDS, and ECS](48-Non-Prod-Off-Hours-Scheduler/) | Tag-driven EventBridge Scheduler powers non-prod EC2, RDS, and ECS down nights and weekends—reclaiming 108 of every 168 hours so dev fleets cost about a third of what they do today. |
-| 49 | [On-the-Fly Image Optimization With S3, Lambda Sharp, and CloudFront: AVIF/WebP 60-80% Lighter Without a SaaS Bill](49-Image-Optimization-Pipeline/) | Serve 60-80% lighter AVIF/WebP images straight from S3 with a Lambda sharp pipeline cached at the CloudFront edge—transform each image once, serve it millions of times, pay no SaaS bill. |
-| 50 | [Serverless WebSocket Fan-Out: API Gateway + DynamoDB Connection Registry That Never Pushes to Dead Connections](50-WebSocket-Serverless-Backend/) | Push live updates to 10,000 browsers straight from Lambda with a self-healing DynamoDB connection registry—real-time dashboards and chat with zero servers to patch, scale, or babysit. |
-| 51 | [Fine-Tune Open-Weight LLMs on SageMaker Managed Spot: Interruption-Proof S3 Checkpoints and a Pre-Deploy Eval Gate](51-SageMaker-LLM-Fine-Tuning/) | Managed Spot fine-tuning that resumes from S3 checkpoints after every interruption and ships only eval-passing models—so GPU training bills drop 60-70% without losing a run or a release. |
-| 52 | [Cost-Capped Spark ETL on EMR Serverless: Right-Sized Workers, 15-Minute Auto-Stop, No Idle-Cluster Bill](52-EMR-Serverless-Spark-ETL/) | Spark ETL that right-sizes EMR Serverless workers, auto-stops in 15 minutes, and hard-caps vCPUs—a 150 GB nightly job costs $1.44 a run instead of a $2,875/month always-on cluster. |
-| 53 | [MongoDB to Amazon DocumentDB Migration Runbook: Compatibility-Gated Cutover via AWS DMS or mongodump](53-MongoDB-DocumentDB-Migration/) | Compatibility-scans your MongoDB workload, picks offline vs online migration, and proves data parity—so you cut over to DocumentDB in one window, not a week of broken queries. |
-| 54 | [Full-Stack TypeScript on Amplify Gen 2: Cognito Auth, AppSync Data, and Per-Branch Environments Without Hand-Wired Glue](54-Amplify-Gen2-Launch-Kit/) | Four TypeScript files define Cognito auth, AppSync data, and per-branch environments—ship a working product backend in an afternoon instead of hand-wiring AWS services for a month. |
-| 55 | [VPC Lattice Service Network Kit: IAM-Authenticated Cross-Account Microservices Without Sidecars or CIDR Surgery](55-VPC-Lattice-Service-Network/) | Wire microservices across VPCs and accounts with VPC Lattice and SigV4 IAM auth policies—no Istio sidecars, no overlapping-CIDR re-IP projects, no unauthenticated east-west traffic. |
-| 56 | [NAS-to-S3 Migration with AWS DataSync: Verified Cutover Without Saturating the Office Uplink](56-DataSync-Bulk-Migration/) | Move terabytes off an aging NAS into S3 with DataSync—checksum-verified, throttled so the office stays online, resumable nightly, and costed against Snowball before you commit a single byte. |
-| 57 | [The $0 Validation Stack: Lambda, DynamoDB, and CloudFront Inside the AWS Free Plan With Alarms That Fire Before the First Cent](57-Free-Plan-Zero-MVP/) | Ship your MVP on Lambda, DynamoDB, and CloudFront inside AWS always-free limits—so you spend six months validating customers, not credits, while the bill reads exactly $0.00. |
-| 58 | [Rekognition UGC Moderation Pipeline: Calibrated Block/Review/Allow Thresholds That Keep Human Review Under 4%](58-Content-Moderation-Pipeline/) | Rekognition scores every upload, auto-blocks the obvious, and routes only ~3% to humans—so unsafe images never go live and your moderation team doesn't scale linearly with your user count. |
-| 59 | [Private VPC Access Without a Public Bastion: Client VPN vs Tailscale vs SSM Decision Kit](59-Private-Access-VPN-Decision/) | Replaces the exposed SSH bastion with the cheapest private-access path for your team size—Client VPN, Tailscale, or $0 SSM port-forwarding—backed by real monthly cost math and working configs. |
-| 60 | [Internal Tools Behind One Cognito Login: ALB OIDC Gateway for Streamlit and Gradio on Fargate — No Auth Code, No Open Port 8501](60-Internal-Tools-Cognito-SSO/) | Five internal Streamlit/Gradio tools, one Cognito login, zero auth code—ALB's authenticate-oidc action turns an $88/month Fargate stack into SSO-gated dashboards no one can reach without signing in. |
+These were written with heavy AI assistance, which the challenge allows. My
+process per package: pick a problem I'd hit or seen someone hit, write a spec
+for what the prompt must do and must refuse to do, generate drafts with an AI
+assistant, then check the load-bearing claims against AWS docs (action names,
+CLI syntax, quotas, prices, version behavior like pg_stat_statements renaming
+total_time to total_exec_time in PG13). Claims I couldn't verify got cut or
+rewritten as "confirm this in the console."
+
+I drafted more than I could enter and submitted the 30 I got through before
+the deadline closed. Hence the gaps in the numbering (06, 22, 29) and the
+three folders numbered 61-63, which came from a later pass. Folder names match
+the submitted links so I'm not renaming anything, including 27, which says
+Redis in the path but targets ElastiCache for Valkey.
+
+Caveats:
+
+- Prices and quotas were checked in June 2026 and will drift.
+- "Example Output" sections show the expected shape of a response. They are
+  illustrative, not captured transcripts. I verified the individual commands,
+  queries, and API fields, but I have not run all 30 prompts end to end
+  against live accounts.
+- The logo.png in each folder is script-generated decoration.
+
+All 30 follow the same rules: verify before recommending (confirm the
+resource, version, or quota actually exists, and say "not verified" instead of
+guessing), read-only for diagnosis (anything mutating needs explicit human
+approval), and end with a verification step that defines done.
+
+Usage: copy the fenced block under "System Prompt" into your assistant's
+system prompt or steering file (.kiro/steering/ for Kiro, CLAUDE.md for Claude
+Code), fill in the [BRACKETED] placeholders, and use credentials with the
+access level the package's Prerequisites section lists. Usually read-only.
+
+## The packages
+
+### Debugging and incident response
+
+| Folder | What it does |
+|---|---|
+| [01-IAM-Access-Denied-Debugger](01-IAM-Access-Denied-Debugger/) | Traces an AccessDenied to the decisive one of the five policy types using CloudTrail and the policy simulator, then writes the minimal scoped fix. Refuses wildcard grants. |
+| [07-Terraform-State-Surgery](07-Terraform-State-Surgery/) | Import, move, split, and drift remediation for S3-backed Terraform state, with a backup first and a dry run before every operation. |
+| [09-VPC-Connectivity-Debugger](09-VPC-Connectivity-Debugger/) | Root-causes "A cannot reach B" by layered elimination plus a Reachability Analyzer path trace. |
+| [28-RDS-Postgres-Performance-Triage](28-RDS-Postgres-Performance-Triage/) | Maps the top Performance Insights wait event to specific diagnostic queries, then splits fixes into safe-now versus needs-a-maintenance-window. |
+
+### Cost reduction
+
+| Folder | What it does |
+|---|---|
+| [04-NAT-Gateway-Egress-Cost](04-NAT-Gateway-Egress-Cost/) | Attributes NAT gateway traffic by destination service and replaces it with VPC endpoints where the math works. |
+| [08-Lambda-Cold-Start-Tuning-Kit](08-Lambda-Cold-Start-Tuning-Kit/) | Runs Lambda Power Tuning, builds a SnapStart eligibility table, and shows the provisioned-concurrency break-even arithmetic. |
+| [10-S3-Lifecycle-Optimizer](10-S3-Lifecycle-Optimizer/) | Turns S3 Inventory data into storage-class decisions that account for retrieval and transition fees. |
+| [11-Savings-Plans-RI-Analyzer](11-Savings-Plans-RI-Analyzer/) | Builds a laddered commitment plan from Cost Explorer, CUR, and Compute Optimizer data. |
+| [24-Bedrock-Batch-Inference-Half-Price](24-Bedrock-Batch-Inference-Half-Price/) | Converts bulk LLM workloads to Bedrock batch inference jobs (JSONL, IAM role, CLI call) at 50 percent of on-demand pricing. |
+| [30-Multi-VPC-Topology-Decision-Kit](30-Multi-VPC-Topology-Decision-Kit/) | Cost-crossover analysis for Transit Gateway versus VPC peering versus PrivateLink. |
+
+### Identity and auth
+
+| Folder | What it does |
+|---|---|
+| [16-IAM-Identity-Center-SSO-Migration](16-IAM-Identity-Center-SSO-Migration/) | Migrates IAM users to Identity Center with permission-set parity checks and a break-glass account kept outside SSO. |
+| [17-Cognito-Production-Auth-Setup](17-Cognito-Production-Auth-Setup/) | Cognito user pool with hosted UI on a custom domain, OAuth federation, and MFA. |
+| [62-IAM-Least-Privilege-Katas](62-IAM-Least-Privilege-Katas/) | Five graded policy-repair drills in a sandbox account, scored only by simulate-principal-policy. |
+
+### CI/CD and ephemeral environments
+
+| Folder | What it does |
+|---|---|
+| [05-Keyless-CICD-OIDC-Deploy](05-Keyless-CICD-OIDC-Deploy/) | GitHub Actions to AWS via OIDC trust roles scoped to one repo and branch. No long-lived keys. |
+| [13-Ephemeral-PR-Preview-Environments](13-Ephemeral-PR-Preview-Environments/) | A full-stack preview environment per pull request, with teardown guaranteed by PR-close hooks plus a nightly reaper. |
+
+### Databases and caching
+
+| Folder | What it does |
+|---|---|
+| [02-Aurora-Postgres-Production-Kit](02-Aurora-Postgres-Production-Kit/) | Aurora PostgreSQL sizing, RDS Proxy connection pooling, and a restore actually executed against a scratch instance. |
+| [03-DynamoDB-Single-Table-Design](03-DynamoDB-Single-Table-Design/) | Single-table DynamoDB modeling driven by an access-pattern worksheet instead of an entity diagram. |
+| [27-ElastiCache-Redis-Production-Kit](27-ElastiCache-Redis-Production-Kit/) | ElastiCache for Valkey: cluster-mode decision table, a failover drill you actually trigger, and stampede-resistant caching code. |
+
+### Data processing and pipelines
+
+| Folder | What it does |
+|---|---|
+| [18-Step-Functions-Distributed-Map](18-Step-Functions-Distributed-Map/) | Fans a million S3 objects across parallel Lambdas with batching and failure thresholds. |
+| [19-AWS-Batch-Spot-Checkpoint](19-AWS-Batch-Spot-Checkpoint/) | AWS Batch on EC2 Spot with a 2-minute interruption handler, S3 checkpoints, and auto-resume. |
+| [20-Kinesis-Iceberg-Athena-Clickstream](20-Kinesis-Iceberg-Athena-Clickstream/) | Clickstream pipeline: Kinesis to Firehose to S3 Iceberg tables queried in Athena. |
+| [21-Glue-Athena-Iceberg-Lakehouse](21-Glue-Athena-Iceberg-Lakehouse/) | Glue, Athena, and Iceberg lakehouse with partitioning, compaction, and per-query byte caps. |
+| [23-Serverless-Document-Extraction-Pipeline](23-Serverless-Document-Extraction-Pipeline/) | Textract plus Bedrock structured extraction, with low-confidence fields routed to A2I human review. |
+
+### DNS, certificates, and CDN
+
+| Folder | What it does |
+|---|---|
+| [14-Route53-ACM-DNS-Kit](14-Route53-ACM-DNS-Kit/) | Route 53 and ACM in Terraform, including DNS validation and the us-east-1 certificate requirement for CloudFront. |
+| [15-CloudFront-Production-CDN-Kit](15-CloudFront-Production-CDN-Kit/) | CloudFront with origin access control, signed URLs, and origin failover. |
+
+### Migrations and upgrades
+
+| Folder | What it does |
+|---|---|
+| [12-Graviton-Migration-Runbook](12-Graviton-Migration-Runbook/) | Per-runtime Graviton migration (ECS, EKS, Lambda, RDS) with multi-arch builds and tested rollbacks. |
+| [25-Zero-Drama-EKS-Upgrades](25-Zero-Drama-EKS-Upgrades/) | EKS minor-version upgrade runbook with version-skew checks, PDB audits, and surge settings. |
+| [26-Heroku-to-AWS-Cutover-Kit](26-Heroku-to-AWS-Cutover-Kit/) | Heroku to AWS: Procfile and config-var translation, DMS-validated database move, weighted Route 53 cutover with rollback. |
+
+### Learning an account
+
+| Folder | What it does |
+|---|---|
+| [61-AWS-Account-Tour-Guide](61-AWS-Account-Tour-Guide/) | Read-only guided tour of a real AWS account for new engineers, ending in a quiz built from the account's actual resources. |
+| [63-Five-Dollar-Cert-Lab](63-Five-Dollar-Cert-Lab/) | SAA-C03 exam domains mapped to hands-on labs on a real account, under five dollars total, with teardown proven by CLI after each lab. |
+
+## License
+
+MIT, see LICENSE.
+
+Kenneth (GitHub: RemiKG)
